@@ -20,6 +20,8 @@ class VoiceMessage extends StatefulWidget {
     required this.me,
     this.noiseCount = 27,
     this.meBgColor = AppColors.pink,
+    this.noiseColor = AppColors.pink,
+    this.backgroundColor = Colors.white,
     this.contactBgColor = const Color(0xffffffff),
     this.contactFgColor = AppColors.pink,
     this.mePlayIconColor = Colors.black,
@@ -31,12 +33,7 @@ class VoiceMessage extends StatefulWidget {
 
   final String audioSrc;
   final int noiseCount;
-  final Color meBgColor,
-      meFgColor,
-      contactBgColor,
-      contactFgColor,
-      mePlayIconColor,
-      contactPlayIconColor;
+  final Color meBgColor, meFgColor, noiseColor, contactBgColor, contactFgColor, mePlayIconColor, backgroundColor, contactPlayIconColor;
   final bool played, me;
   Function()? onPlay;
 
@@ -44,8 +41,7 @@ class VoiceMessage extends StatefulWidget {
   _VoiceMessageState createState() => _VoiceMessageState();
 }
 
-class _VoiceMessageState extends State<VoiceMessage>
-    with SingleTickerProviderStateMixin {
+class _VoiceMessageState extends State<VoiceMessage> with SingleTickerProviderStateMixin {
   final AudioPlayer _player = AudioPlayer();
   final double maxNoiseHeight = 6.w(), noiseWidth = 26.5.w();
   Duration? _audioDuration;
@@ -71,13 +67,11 @@ class _VoiceMessageState extends State<VoiceMessage>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(6.w()),
-          bottomLeft:
-              widget.me ? Radius.circular(6.w()) : Radius.circular(2.w()),
-          bottomRight:
-              !widget.me ? Radius.circular(6.w()) : Radius.circular(1.2.w()),
+          bottomLeft: widget.me ? Radius.circular(6.w()) : Radius.circular(2.w()),
+          bottomRight: !widget.me ? Radius.circular(6.w()) : Radius.circular(1.2.w()),
           topRight: Radius.circular(6.w()),
         ),
-        color: widget.me ? widget.meBgColor : widget.contactBgColor,
+        color: widget.backgroundColor,
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.w(), vertical: 2.8.w()),
@@ -106,8 +100,7 @@ class _VoiceMessageState extends State<VoiceMessage>
           width: 8.w(),
           height: 8.w(),
           child: InkWell(
-            onTap: () =>
-                !_audioConfigurationDone ? null : _changePlayingStatus(),
+            onTap: () => !_audioConfigurationDone ? null : _changePlayingStatus(),
             child: !_audioConfigurationDone
                 ? Container(
                     padding: const EdgeInsets.all(8),
@@ -115,15 +108,12 @@ class _VoiceMessageState extends State<VoiceMessage>
                     height: 0,
                     child: CircularProgressIndicator(
                       strokeWidth: 1,
-                      color:
-                          widget.me ? widget.meFgColor : widget.contactFgColor,
+                      color: widget.me ? widget.meFgColor : widget.contactFgColor,
                     ),
                   )
                 : Icon(
                     _isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: widget.me
-                        ? widget.mePlayIconColor
-                        : widget.contactPlayIconColor,
+                    color: widget.me ? widget.mePlayIconColor : widget.contactPlayIconColor,
                     size: 5.w(),
                   ),
           ),
@@ -137,9 +127,7 @@ class _VoiceMessageState extends State<VoiceMessage>
           SizedBox(height: .3.w()),
           Row(
             children: [
-              if (!widget.played)
-                Widgets.circle(context, 1.w(),
-                    widget.me ? widget.meFgColor : widget.contactFgColor),
+              if (!widget.played) Widgets.circle(context, 1.w(), widget.me ? widget.meFgColor : widget.contactFgColor),
               SizedBox(width: 1.2.w()),
               Text(
                 _remaingTime,
@@ -173,11 +161,10 @@ class _VoiceMessageState extends State<VoiceMessage>
         child: Stack(
           clipBehavior: Clip.hardEdge,
           children: [
-            widget.me ? const Noises() : const ContactNoise(),
+            widget.me ? Noises(noiseColor: widget.noiseColor) : ContactNoise(noiseColor: widget.noiseColor),
             if (_audioConfigurationDone)
               AnimatedBuilder(
-                animation:
-                    CurvedAnimation(parent: _controller!, curve: Curves.ease),
+                animation: CurvedAnimation(parent: _controller!, curve: Curves.ease),
                 builder: (context, child) {
                   return Positioned(
                     left: _controller!.value,
@@ -272,8 +259,7 @@ class _VoiceMessageState extends State<VoiceMessage>
     _completeAnimationConfiguration();
   }
 
-  void _completeAnimationConfiguration() =>
-      setState(() => _audioConfigurationDone = true);
+  void _completeAnimationConfiguration() => setState(() => _audioConfigurationDone = true);
 
   // void _toggle2x() {
   //   x2 = !x2;
@@ -298,8 +284,7 @@ class _VoiceMessageState extends State<VoiceMessage>
   void _listenToRemaningTime() {
     _player.onAudioPositionChanged.listen((Duration p) {
       final _newRemaingTime1 = p.toString().split('.')[0];
-      final _newRemaingTime2 =
-          _newRemaingTime1.substring(_newRemaingTime1.length - 5);
+      final _newRemaingTime2 = _newRemaingTime1.substring(_newRemaingTime1.length - 5);
       if (_newRemaingTime2 != _remaingTime) {
         setState(() => _remaingTime = _newRemaingTime2);
       }
@@ -330,8 +315,7 @@ class CustomTrackShape extends RoundedRectSliderTrackShape {
   }) {
     const double trackHeight = 10;
     final double trackLeft = offset.dx;
-    final double trackTop =
-        offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
     final double trackWidth = parentBox.size.width;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
